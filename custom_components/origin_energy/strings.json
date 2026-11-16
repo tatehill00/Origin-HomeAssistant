@@ -1,0 +1,71 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "A password can't be used here — Origin's login form is behind Kasada bot protection that blocks automated sign-ins.\n\n1. Sign in at originenergy.com.au in your browser (with DevTools closed).\n2. In the same tab, go to {jwks_url} — this loads a page on the auth domain so the cookies become visible.\n3. Open DevTools → Application → Cookies → {cookie_origin}.\n4. Copy both the `auth0` and `did` cookie values and paste them below as:\n`auth0=<auth0_value>; did=<did_value>`",
+        "data": {
+          "session_cookie": "Session cookies (auth0 & did)"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Your Origin Energy session has expired. Sign in again at originenergy.com.au and paste your `auth0` and `did` cookies (`auth0=...; did=...`) for id.originenergy.com.au. Your existing energy history will be kept.",
+        "data": {
+          "session_cookie": "Session cookies (auth0 & did)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "That session cookie was rejected. Make sure you copied both `auth0` and `did` cookies for id.originenergy.com.au while signed in.",
+      "mfa_required": "Auth0 requires your device identifier (`did`) cookie alongside `auth0` to skip MFA. Please paste both as: `auth0=<auth0_value>; did=<did_value>`.",
+      "cannot_connect": "Could not reach Origin Energy",
+      "no_services": "No electricity service found on this account",
+      "unknown": "Unexpected error",
+      "blocked": "Origin's bot protection refused the request before it reached the login server. Your session cookie is probably fine. Try again in a few minutes."
+    },
+    "abort": {
+      "already_configured": "This Origin Energy account is already configured",
+      "reauth_successful": "Origin Energy reconnected",
+      "wrong_account": "That sign-in is for a different Origin Energy account. Use the account this entry was set up with, or add a second entry for the other one."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Origin Energy options",
+        "description": "Origin publishes each day's usage in a single overnight batch, and the exact publication hour varies. Polling every few hours picks up new batches promptly.",
+        "data": {
+          "update_interval_hours": "Update interval (hours)"
+        },
+        "data_description": {
+          "update_interval_hours": "How often to check Origin for new usage data (default: 4 hours)."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_update": {
+        "name": "Last update"
+      },
+      "current_cycle_usage": {
+        "name": "Billing cycle electricity usage"
+      },
+      "current_cycle_cost": {
+        "name": "Billing cycle electricity cost"
+      },
+      "account_balance": {
+        "name": "Account balance"
+      },
+      "electricity_usage_rate": {
+        "name": "Electricity tariff rate"
+      },
+      "daily_supply_charge": {
+        "name": "Daily supply charge"
+      },
+      "hot_water_usage": {
+        "name": "Hot water meter reading"
+      }
+    }
+  }
+}
+

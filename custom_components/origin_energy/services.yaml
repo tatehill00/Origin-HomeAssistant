@@ -1,0 +1,18 @@
+set_session_cookie:
+  name: Set session cookie
+  description: Update the Auth0 SSO session cookie for Origin Energy without opening the UI config flow.
+  fields:
+    session_cookie:
+      name: Session cookie (auth0)
+      description: The `auth0` cookie value from `id.originenergy.com.au`.
+      required: true
+      example: "s%3A..."
+      selector:
+        text:
+    agreement_id:
+      name: Agreement ID (optional)
+      description: Target a specific Origin Energy agreement ID if multiple accounts are configured.
+      required: false
+      selector:
+        text:
+

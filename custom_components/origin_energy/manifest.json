@@ -1,0 +1,20 @@
+{
+  "domain": "origin_energy",
+  "name": "Origin Energy",
+  "codeowners": [
+    "@tatehill00"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "recorder"
+  ],
+  "documentation": "https://github.com/tatehill00/Origin-HomeAssistant",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/tatehill00/Origin-HomeAssistant/issues",
+  "loggers": [
+    "custom_components.origin_energy"
+  ],
+  "requirements": [],
+  "version": "0.1.0"
+}

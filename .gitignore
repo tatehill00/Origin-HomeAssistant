@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Secrets, environment variables, and cookies
+.env
+*.env
+!*.env.example
+*secret*
+*cookie*.txt
+*token*.txt
+
+# Network captures & dumps (contain live bearer tokens / PII)
+*.har
+*.sanitized.json
+schema.json
+
+# Home Assistant local test storage
+.storage/
+home-assistant.log*
+home-assistant_v2.db*
+
+# IDE / OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
