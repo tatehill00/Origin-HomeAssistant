@@ -32,12 +32,18 @@
     "step": {
       "init": {
         "title": "Origin Energy options",
-        "description": "Origin publishes each day's usage in a single overnight batch, and the exact publication hour varies. Polling every few hours picks up new batches promptly.",
+        "description": "Configure how often to poll Origin Energy for new usage data, and optionally set manual tariff rate overrides (leave overrides at 0 to use automatic tariff rates from your Origin plan/bills).",
         "data": {
-          "update_interval_hours": "Update interval (hours)"
+          "update_interval_hours": "Update interval (hours)",
+          "override_usage_rate": "Override electricity usage rate ($/kWh)",
+          "override_supply_charge": "Override daily supply charge ($/day)",
+          "override_feed_in_tariff": "Override solar feed-in tariff ($/kWh)"
         },
         "data_description": {
-          "update_interval_hours": "How often to check Origin for new usage data (default: 4 hours)."
+          "update_interval_hours": "How often to check Origin for new usage data (default: 4 hours).",
+          "override_usage_rate": "Set to 0 to auto-detect from your Origin tariff or billing history.",
+          "override_supply_charge": "Set to 0 to auto-detect from your Origin tariff or billing history.",
+          "override_feed_in_tariff": "Set to 0 to auto-detect from your Origin solar plan."
         }
       }
     }
@@ -47,11 +53,26 @@
       "last_update": {
         "name": "Last update"
       },
+      "yesterday_usage": {
+        "name": "Yesterday electricity usage"
+      },
+      "yesterday_cost": {
+        "name": "Yesterday electricity cost"
+      },
       "current_cycle_usage": {
         "name": "Billing cycle electricity usage"
       },
       "current_cycle_cost": {
         "name": "Billing cycle electricity cost"
+      },
+      "projected_bill_cost": {
+        "name": "Projected bill cost"
+      },
+      "days_until_next_bill": {
+        "name": "Days until next bill"
+      },
+      "next_bill_date": {
+        "name": "Next bill date"
       },
       "account_balance": {
         "name": "Account balance"
@@ -62,10 +83,26 @@
       "daily_supply_charge": {
         "name": "Daily supply charge"
       },
+      "solar_feed_in_tariff": {
+        "name": "Solar feed-in tariff"
+      },
       "hot_water_usage": {
         "name": "Hot water meter reading"
+      },
+      "hot_water_cycle_cost": {
+        "name": "Hot water billing cycle cost"
+      },
+      "gas_cycle_usage": {
+        "name": "Billing cycle gas usage"
+      }
+    },
+    "button": {
+      "refresh_usage": {
+        "name": "Refresh usage now"
+      },
+      "backfill_history": {
+        "name": "Re-run history backfill"
       }
     }
   }
 }
-

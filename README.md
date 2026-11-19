@@ -6,19 +6,35 @@ A custom Home Assistant integration for **Origin Energy (Australia)** that pulls
 
 1. **Home Assistant Energy Dashboard Integration (Long-Term Statistics)**
    - Automatically imports hourly (or daily) **electricity consumption (`kWh`)** and **cost (`$`)** directly into Home Assistant's Recorder external statistics (`origin_energy:<agreement>_energy_consumption` and `origin_energy:<agreement>_energy_cost`).
+   - Supports both standard retail (`ELECTRICITY`) and embedded network (`EMBEDDED_ELECTRICITY`) accounts.
+   - Automatically imports **Solar feed-in export (`kWh`) & earnings (`$`)**, **Hot Water consumption (`L`)**, and **Gas consumption (`kWh`) & cost (`$`)** into external statistics when present on your account.
    - Performs an automatic background backfill up to 2 years (or `service.validFrom`) on first setup, plus a 5-day rolling overlap window on every poll to capture late meter revisions.
 
-2. **Live Tariff, Billing Cycle, & Water Usage Sensors**
+2. **Live Tariff, Billing Cycle, Projection, Yesterday, & Water/Gas Sensors**
+   - `sensor.origin_energy_yesterday_electricity_usage` (`kWh` used on the most recent full day)
+   - `sensor.origin_energy_yesterday_electricity_cost` (`$` cost for the most recent full day)
    - `sensor.origin_energy_billing_cycle_electricity_usage` (`kWh` used in the current billing period)
    - `sensor.origin_energy_billing_cycle_electricity_cost` (`$` accrued in the current billing period, with supply vs. usage charge breakdown attributes)
-   - `sensor.origin_energy_account_balance` (`$` current account balance, next bill date, and due charges)
-   - `sensor.origin_energy_electricity_tariff_rate` (`$/kWh` primary active tariff rate, plus full time-of-use/step rate schedule in attributes)
+   - `sensor.origin_energy_projected_bill_cost` (`$` projected full-cycle bill total based on your current daily burn rate and supply charges)
+   - `sensor.origin_energy_days_until_next_bill` (`days` countdown to your next bill date)
+   - `sensor.origin_energy_next_bill_date` (timestamp of your next scheduled bill)
+   - `sensor.origin_energy_account_balance` (`$` current account balance and due charges)
+   - `sensor.origin_energy_electricity_tariff_rate` (`$/kWh` active tariff rate, plus full time-of-use/step rate schedule in attributes)
    - `sensor.origin_energy_daily_supply_charge` (`$` daily standing supply charge)
-   - `sensor.origin_energy_hot_water_meter_reading` (`L` cumulative meter reading and tariff rates when an `EMBEDDED_HOT_WATER` service is present on the account)
+   - `sensor.origin_energy_solar_feed_in_tariff` (`$/kWh` solar export rate, created when solar is present or configured)
+   - `sensor.origin_energy_hot_water_meter_reading` (`L` cumulative meter reading and tariff rates when an `EMBEDDED_HOT_WATER` service is present)
+   - `sensor.origin_energy_hot_water_billing_cycle_cost` (`$` hot water charges in the current billing cycle)
+   - `sensor.origin_energy_billing_cycle_gas_usage` (`MJ` gas usage in the current billing cycle when a `GAS` service is present)
    - `sensor.origin_energy_last_update` (timestamp of last successful poll)
 
-3. **Self-Renewing Auth0 Session**
-   - Uses your browser's `auth0` SSO cookie from `id.originenergy.com.au` to perform silent OAuth PKCE exchanges (`/authorize?prompt=none`) and persists the rolled cookie on each poll.
+3. **Action Buttons, Tariff Overrides, & Diagnostics**
+   - `button.origin_energy_refresh_usage_now` — trigger an immediate poll from the device page.
+   - `button.origin_energy_re_run_history_backfill` (and `origin_energy.backfill_history` service) — trigger a full historical backfill and cost recalculation.
+   - **Manual Tariff Overrides** in the integration's **Configure** dialog (`Override electricity usage rate`, `Override daily supply charge`, `Override solar feed-in tariff`) for embedded networks or custom plans.
+   - **Download Diagnostics** support (`diagnostics.py`) with automatic redaction of cookies, agreement IDs, NMIs, and account numbers.
+
+4. **Self-Renewing Auth0 Session**
+   - Uses your browser's `auth0` and `did` SSO cookies from `id.originenergy.com.au` to perform silent OAuth PKCE exchanges (`/authorize?prompt=none`) and persists the rolled cookies on each poll.
 
 ## Installation
 

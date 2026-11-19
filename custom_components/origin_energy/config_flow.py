@@ -38,6 +38,9 @@ from .auth import (
 from .const import (
     AUTH_DOMAIN,
     CONF_AGREEMENT_ID,
+    CONF_OVERRIDE_FEED_IN_TARIFF,
+    CONF_OVERRIDE_SUPPLY_CHARGE,
+    CONF_OVERRIDE_USAGE_RATE,
     CONF_SERVICE_TYPE,
     CONF_SESSION_COOKIE,
     CONF_TIME_UNIT,
@@ -195,7 +198,7 @@ class OriginEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class OriginEnergyOptionsFlow(OptionsFlow):
-    """Let the poll interval be changed from the integration Configure dialog."""
+    """Let the poll interval and optional manual tariff overrides be configured."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -205,19 +208,47 @@ class OriginEnergyOptionsFlow(OptionsFlow):
                 data={
                     CONF_UPDATE_INTERVAL_HOURS: int(
                         user_input[CONF_UPDATE_INTERVAL_HOURS]
-                    )
+                    ),
+                    CONF_OVERRIDE_USAGE_RATE: float(
+                        user_input.get(CONF_OVERRIDE_USAGE_RATE) or 0.0
+                    ),
+                    CONF_OVERRIDE_SUPPLY_CHARGE: float(
+                        user_input.get(CONF_OVERRIDE_SUPPLY_CHARGE) or 0.0
+                    ),
+                    CONF_OVERRIDE_FEED_IN_TARIFF: float(
+                        user_input.get(CONF_OVERRIDE_FEED_IN_TARIFF) or 0.0
+                    ),
                 }
             )
 
-        current = self.config_entry.options.get(
+        current_interval = self.config_entry.options.get(
             CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS
         )
+        current_usage_rate = float(
+            self.config_entry.options.get(CONF_OVERRIDE_USAGE_RATE, 0.0)
+        )
+        current_supply_charge = float(
+            self.config_entry.options.get(CONF_OVERRIDE_SUPPLY_CHARGE, 0.0)
+        )
+        current_fit = float(
+            self.config_entry.options.get(CONF_OVERRIDE_FEED_IN_TARIFF, 0.0)
+        )
+
+        rate_selector = NumberSelector(
+            NumberSelectorConfig(
+                min=0.0,
+                max=10.0,
+                step=0.0001,
+                mode=NumberSelectorMode.BOX,
+            )
+        )
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_UPDATE_INTERVAL_HOURS, default=current
+                        CONF_UPDATE_INTERVAL_HOURS, default=current_interval
                     ): NumberSelector(
                         NumberSelectorConfig(
                             min=MIN_UPDATE_INTERVAL_HOURS,
@@ -226,7 +257,16 @@ class OriginEnergyOptionsFlow(OptionsFlow):
                             mode=NumberSelectorMode.BOX,
                             unit_of_measurement="hours",
                         )
-                    )
+                    ),
+                    vol.Optional(
+                        CONF_OVERRIDE_USAGE_RATE, default=current_usage_rate
+                    ): rate_selector,
+                    vol.Optional(
+                        CONF_OVERRIDE_SUPPLY_CHARGE, default=current_supply_charge
+                    ): rate_selector,
+                    vol.Optional(
+                        CONF_OVERRIDE_FEED_IN_TARIFF, default=current_fit
+                    ): rate_selector,
                 }
             ),
         )

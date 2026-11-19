@@ -142,7 +142,7 @@ query AccountDetailsQuery($type: ServiceType!) {
               serialNumber
               active
               nextScheduledReadDate
-              readings(first: 5) {
+              readings(first: 25) {
                 edges {
                   node {
                     value
@@ -356,21 +356,31 @@ class UsageWindow:
 
 @dataclass
 class AccountSummary:
-    """Snapshot of billing, tariff rates, and hot water/service metadata."""
+    """Snapshot of billing, tariff rates, daily/projected usage, solar, gas, and hot water."""
 
     account_number: str | None = None
     balance_dollars: float | None = None
     next_bill_date: str | None = None
+    next_bill_datetime: datetime | None = None
+    days_until_next_bill: int | None = None
     billing_period_start: str | None = None
     due_amount_dollars: float | None = None
     due_date: str | None = None
     plan_name: str | None = None
     standing_charge_dollars: float | None = None
+    solar_feed_in_rate_dollars: float | None = None
     usage_rates: list[dict[str, Any]] = field(default_factory=list)
     current_cycle_usage_kwh: float | None = None
     current_cycle_cost_dollars: float | None = None
     current_cycle_supply_dollars: float | None = None
     current_cycle_usage_charge_dollars: float | None = None
+    projected_bill_cost_dollars: float | None = None
+    projected_bill_usage_kwh: float | None = None
+    yesterday_usage_kwh: float | None = None
+    yesterday_cost_dollars: float | None = None
+    yesterday_export_kwh: float | None = None
+    yesterday_date: str | None = None
+    has_solar_export: bool = False
     hot_water_agreement_id: str | None = None
     hot_water_identifier: str | None = None
     hot_water_latest_reading: float | None = None
@@ -379,6 +389,10 @@ class AccountSummary:
     hot_water_current_cycle_cost_dollars: float | None = None
     hot_water_usage_unit: str | None = None
     hot_water_rates: list[dict[str, Any]] = field(default_factory=list)
+    gas_agreement_id: str | None = None
+    gas_identifier: str | None = None
+    gas_current_cycle_usage_mj: float | None = None
+    gas_current_cycle_cost_dollars: float | None = None
 
 
 def pick_time_unit(available: list[str] | None) -> str:

@@ -43,6 +43,9 @@ CONF_SERVICE_TYPE = "service_type"
 CONF_TIMEZONE = "timezone"
 CONF_TIME_UNIT = "time_unit"
 CONF_UPDATE_INTERVAL_HOURS = "update_interval_hours"
+CONF_OVERRIDE_USAGE_RATE = "override_usage_rate"
+CONF_OVERRIDE_SUPPLY_CHARGE = "override_supply_charge"
+CONF_OVERRIDE_FEED_IN_TARIFF = "override_feed_in_tariff"
 CONF_BACKFILL_COMPLETE = "backfill_complete"
 
 SERVICE_TYPES = (
@@ -72,4 +75,3 @@ RETRY_BACKOFF_SECONDS = 2
 # Sub-daily granularities cap at 9 days on Origin's backend; DAILY caps at 1000 points.
 MAX_QUERY_DAYS = {"HALF_HOURLY": 7, "HOURLY": 7, "DAILY": 900, "MONTHLY": 900}
 DEFAULT_QUERY_DAYS = 7
-

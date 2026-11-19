@@ -1,12 +1,12 @@
 set_session_cookie:
   name: Set session cookie
-  description: Update the Auth0 SSO session cookie for Origin Energy without opening the UI config flow.
+  description: Update the Auth0 SSO session cookies (`auth0` and `did`) for Origin Energy without opening the UI config flow.
   fields:
     session_cookie:
-      name: Session cookie (auth0)
-      description: The `auth0` cookie value from `id.originenergy.com.au`.
+      name: Session cookies (auth0 & did)
+      description: The `auth0=...; did=...` cookie string from `id.originenergy.com.au`.
       required: true
-      example: "s%3A..."
+      example: "auth0=s%3A...; did=s%3A..."
       selector:
         text:
     agreement_id:
@@ -16,3 +16,13 @@ set_session_cookie:
       selector:
         text:
 
+backfill_history:
+  name: Re-run history backfill
+  description: Re-import full historical usage and recalculate historical costs for the Home Assistant Energy Dashboard.
+  fields:
+    agreement_id:
+      name: Agreement ID (optional)
+      description: Target a specific Origin Energy agreement ID if multiple accounts are configured.
+      required: false
+      selector:
+        text:

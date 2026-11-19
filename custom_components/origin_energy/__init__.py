@@ -10,8 +10,9 @@ import homeassistant.helpers.config_validation as cv
 from .const import CONF_AGREEMENT_ID, CONF_SESSION_COOKIE, DOMAIN
 from .coordinator import OriginEnergyConfigEntry, OriginEnergyCoordinator
 
-PLATFORMS = ["sensor"]
+PLATFORMS = ["sensor", "button"]
 SERVICE_SET_SESSION_COOKIE = "set_session_cookie"
+SERVICE_BACKFILL_HISTORY = "backfill_history"
 
 SERVICE_SET_COOKIE_SCHEMA = vol.Schema(
     {
@@ -20,52 +21,85 @@ SERVICE_SET_COOKIE_SCHEMA = vol.Schema(
     }
 )
 
+SERVICE_BACKFILL_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_AGREEMENT_ID): cv.string,
+    }
+)
+
 
 async def _async_entry_updated(
     hass: HomeAssistant, entry: OriginEnergyConfigEntry
 ) -> None:
-    """Apply a poll interval changed from the Configure dialog without reloading."""
+    """Apply options changed from the Configure dialog without reloading."""
     coordinator = entry.runtime_data
-    if coordinator.async_adopt_update_interval():
+    if coordinator.async_adopt_options():
         await coordinator.async_request_refresh()
 
 
 def _register_services(hass: HomeAssistant) -> None:
-    """Register the `origin_energy.set_session_cookie` service once."""
-    if hass.services.has_service(DOMAIN, SERVICE_SET_SESSION_COOKIE):
-        return
+    """Register Origin Energy services once."""
+    if not hass.services.has_service(DOMAIN, SERVICE_SET_SESSION_COOKIE):
 
-    async def _async_handle_set_cookie(call: ServiceCall) -> None:
-        cookie = call.data[CONF_SESSION_COOKIE].strip()
-        target_agreement = call.data.get(CONF_AGREEMENT_ID)
+        async def _async_handle_set_cookie(call: ServiceCall) -> None:
+            cookie = call.data[CONF_SESSION_COOKIE].strip()
+            target_agreement = call.data.get(CONF_AGREEMENT_ID)
 
-        entries = hass.config_entries.async_entries(DOMAIN)
-        if target_agreement:
-            entries = [
-                e for e in entries if e.data.get(CONF_AGREEMENT_ID) == target_agreement
-            ]
+            entries = hass.config_entries.async_entries(DOMAIN)
+            if target_agreement:
+                entries = [
+                    e
+                    for e in entries
+                    if e.data.get(CONF_AGREEMENT_ID) == target_agreement
+                ]
 
-        for entry in entries:
-            hass.config_entries.async_update_entry(
-                entry,
-                data={**entry.data, CONF_SESSION_COOKIE: cookie},
-            )
-            await hass.config_entries.async_reload(entry.entry_id)
+            for entry in entries:
+                hass.config_entries.async_update_entry(
+                    entry,
+                    data={**entry.data, CONF_SESSION_COOKIE: cookie},
+                )
+                await hass.config_entries.async_reload(entry.entry_id)
 
-            # Dismiss any active reauth flows for this entry
-            for flow in hass.config_entries.flow.async_progress_by_handler(DOMAIN):
-                if (
-                    flow.get("context", {}).get("source") == SOURCE_REAUTH
-                    and flow.get("context", {}).get("entry_id") == entry.entry_id
-                ):
-                    hass.config_entries.flow.async_abort(flow["flow_id"])
+                for flow in hass.config_entries.flow.async_progress_by_handler(DOMAIN):
+                    if (
+                        flow.get("context", {}).get("source") == SOURCE_REAUTH
+                        and flow.get("context", {}).get("entry_id") == entry.entry_id
+                    ):
+                        hass.config_entries.flow.async_abort(flow["flow_id"])
 
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_SET_SESSION_COOKIE,
-        _async_handle_set_cookie,
-        schema=SERVICE_SET_COOKIE_SCHEMA,
-    )
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_SET_SESSION_COOKIE,
+            _async_handle_set_cookie,
+            schema=SERVICE_SET_COOKIE_SCHEMA,
+        )
+
+    if not hass.services.has_service(DOMAIN, SERVICE_BACKFILL_HISTORY):
+
+        async def _async_handle_backfill(call: ServiceCall) -> None:
+            target_agreement = call.data.get(CONF_AGREEMENT_ID)
+            entries = hass.config_entries.async_entries(DOMAIN)
+            if target_agreement:
+                entries = [
+                    e
+                    for e in entries
+                    if e.data.get(CONF_AGREEMENT_ID) == target_agreement
+                ]
+
+            for entry in entries:
+                coordinator: OriginEnergyCoordinator | None = getattr(
+                    entry, "runtime_data", None
+                )
+                if coordinator is not None:
+                    await coordinator.async_trigger_backfill()
+                    await coordinator.async_request_refresh()
+
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_BACKFILL_HISTORY,
+            _async_handle_backfill,
+            schema=SERVICE_BACKFILL_SCHEMA,
+        )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: OriginEnergyConfigEntry) -> bool:
